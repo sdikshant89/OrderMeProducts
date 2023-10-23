@@ -14,11 +14,11 @@
 */
 const express = require('express');
 const requestInfo = require('morgan');
-const logger = require('./logger');
+const logger = require('./src/controller/logger');
 const app = express();
 
-const productRoutes = require('./api/routes/products');
-const orderRoutes = require('./api/routes/orders');
+const productRoutes = require('./src/routes/products');
+const orderRoutes = require('./src/routes/orders');
 
 // Defining logger pattern for API hit info
 const logPattern = '[:date[clf]] :remote-addr :remote-user :status :method \":url HTTP V:http-version\" :user-agent :response-time ms';

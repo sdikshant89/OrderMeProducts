@@ -4,7 +4,7 @@
 
 // Can't use import in nodeJs yet(its not supported)
 const http = require('http');
-const app = require('./app');
+const app = require('../../index');
 
 const port = process.env.PORT || 3000;
 
