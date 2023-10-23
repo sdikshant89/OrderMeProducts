@@ -7,14 +7,12 @@ const router = express.Router();
 router.get('/',(request, response)=>{
     response.status(200).json({
         message: 'get request for products',
-        //req: JSON.stringify(request)
     });
 });
 
 router.post('/',(request, response)=>{
     response.status(201).json({
         message: 'post request for products',
-        //req: JSON.stringify(request)
     });
 });
 
