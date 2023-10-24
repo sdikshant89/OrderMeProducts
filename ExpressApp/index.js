@@ -12,6 +12,7 @@
     - Winston (npm install winston and npm i winston@next --save)
     # Used to log the info and error to a separate log file
 */
+
 const express = require('express');
 const requestInfo = require('morgan');
 const logger = require('./src/controller/logger');
@@ -25,18 +26,29 @@ const logPattern = '[:date[clf]] :remote-addr :remote-user :status :method \":ur
 // Appending the API hit info from Morgan to Winston(using for saving logs in file)
 app.use(requestInfo(logPattern, {"stream": logger.stream}));
 
-//logger.log('info', requestInfo(logPattern));
-
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+
+// Custom error for invalid API endpoints
+app.use((request, response, next) => {
+    //TODO: check why error is printing in logger_info
+    logger.log('error', 'Invalid API call hit - index.js');
+    const error = new Error('URL invalid, check URL and try again');
+    error.status = 404;
+    next(error);
+});
+
+// Global error handling, error prints out directly to the response of API hit
+app.use((error, request, response, next) => {
+    response.status(error.status || 500);
+    response.json({
+        error:{
+            message: error.message
+        }
+    });
+});
 
 module.exports = app;
 
 // This is the starting point of the application, all the api hits go through this method
 // Can add function as method parameter here so to redirect the api
-
-// app.use((request, response) => {
-//     response.status(200).json({
-//         text: 'Works'
-//     });
-// });

@@ -4,8 +4,12 @@
 
 const {createLogger, transports, format} = require('winston');
 
-const myFormat = format.printf(({message}) => {
+const myInfoFormat = format.printf(({message}) => {
     return `${message}`;
+});
+
+const myErrorFormat = format.printf(({message, timestamp}) => {
+    return `[${timestamp}]: ${message}`;
 });
 
 const logger = createLogger({
@@ -14,15 +18,13 @@ const logger = createLogger({
             filename: './Logs/logger_info.log',
             level: 'info',
             maxFiles: 1,
-            format: format.combine(
-                myFormat
-                )
+            format: format.combine(myInfoFormat)
         }),
         new transports.File({
             filename: './Logs/logger_error.log',
             level: 'error',
             maxFiles: 1,
-            format: format.combine(format.timestamp(), format.json())
+            format: format.combine(format.timestamp(), myErrorFormat)
         })
     ]
 });
