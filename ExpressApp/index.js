@@ -39,7 +39,6 @@ app.use('/orders', orderRoutes);
 
 // Custom error for invalid API endpoints
 app.use((request, response, next) => {
-    //TODO: check why error is printing in logger_info
     logger.log('error', 'Invalid API call hit - index.js');
     const error = new Error('URL invalid, check URL and try again');
     error.status = 404;

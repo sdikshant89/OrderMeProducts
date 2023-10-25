@@ -1,15 +1,26 @@
 /*
     This is a Util script for logging the errors into separate files
+    Refer documentation of winston package
  */
 
 const {createLogger, transports, format} = require('winston');
 
-const myInfoFormat = format.printf(({message}) => {
-    return `${message}`;
+const myInfoFormat = format.printf(({level, message}) => {
+    // 1. TODO return nothing when message is empty
+    // returning empty string is resulting in empty newline print in logger
+    var mess = '';
+    if(level === 'info' && message != ''){
+        mess = `${message}`;
+    }
+    return mess;
 });
 
-const myErrorFormat = format.printf(({message, timestamp}) => {
-    return `[${timestamp}]: ${message}`;
+const myErrorFormat = format.printf(({level, message, timestamp}) => {
+    var mess = '';
+    if(level === 'error'){
+        mess = `[${timestamp}]: ${message}`;
+    }
+    return mess.trim();
 });
 
 const logger = createLogger({
@@ -31,7 +42,7 @@ const logger = createLogger({
 
 module.exports = logger;
 module.exports.stream = {
-    write: function(message, encoding){
-        logger.info(message);
+    write: function(message){
+        logger.info(message.replace('\n',''));
     }
 };

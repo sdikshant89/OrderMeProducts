@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 router.post('/',(request, response)=>{
-    // TODO add error handeling here so that the error parameter in app.use is modified and
+    // 2. TODO add error handeling here so that the error parameter in app.use is modified and
     // then we could terminate the API here and send the response from here itself. (Call that app.use from here)
     const order = {
         productId: request.body.productId?request.body.productId:NaN,
