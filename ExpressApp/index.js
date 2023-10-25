@@ -11,11 +11,16 @@
 
     - Winston (npm install winston and npm i winston@next --save)
     # Used to log the info and error to a separate log file
+
+    - Body Parser (npm install --save body-parser)
+    # Used to parse body of incoming request (not easily parsed and formatted in nodejs)
+    # Does not support files
 */
 
 const express = require('express');
 const requestInfo = require('morgan');
 const logger = require('./src/controller/logger');
+const bodyParser = require('body-parser');
 const app = express();
 
 const productRoutes = require('./src/routes/products');
@@ -25,6 +30,9 @@ const orderRoutes = require('./src/routes/orders');
 const logPattern = '[:date[clf]] :remote-addr :remote-user :status :method \":url HTTP V:http-version\" :user-agent :response-time ms';
 // Appending the API hit info from Morgan to Winston(using for saving logs in file)
 app.use(requestInfo(logPattern, {"stream": logger.stream}));
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);

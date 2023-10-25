@@ -4,10 +4,16 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/',(request, response)=>{
+router.post('/',(request, response)=>{
+    // TODO add error handeling here so that the error parameter in app.use is modified and
+    // then we could terminate the API here and send the response from here itself. (Call that app.use from here)
+    const order = {
+        productId: request.body.productId?request.body.productId:NaN,
+        quantity: request.body.quantity?request.body.quantity:NaN
+    };
     response.status(200).json({
         message: 'get request for products',
-        //req: JSON.stringify(request)
+        orderSummary: order
     });
 });
 
