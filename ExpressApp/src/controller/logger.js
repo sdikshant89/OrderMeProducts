@@ -9,7 +9,7 @@ const myInfoFormat = format.printf(({level, message}) => {
     // 1. TODO return nothing when message is empty
     // returning empty string is resulting in empty newline print in logger
     var mess = '';
-    if(level === 'info' && message != ''){
+    if(level === 'info' && message){
         mess = `${message}`;
     }
     return mess;

@@ -34,6 +34,25 @@ app.use(requestInfo(logPattern, {"stream": logger.stream}));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+// CORS- Cross origin resource sharing (Allows request from other servers to access the application and send request to our application)
+// The below function makes sure that request from diff server should be able to get a response from our application
+// Can change the other argument of header from * to any other specific url to give access to that particular website
+// 3. TODO check how to secure API with custom tools which can send request (not from browser)
+app.use((request, response, next)=>{
+    response.header('Access-Control-Allow-Origin', '*');
+    response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+    // Initially for a put or post call, browser will first try to send a OPTIONS request to check if the request can actually go through
+    if(request.method === 'OPTIONS'){
+        response.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, PATCH');
+        return response.status(200).json({
+            message: 'Access Allowed to methods',
+            methods: 'GET, PUT, POST, DELETE, PATCH'
+        });
+    }
+    next();
+});
+
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 
