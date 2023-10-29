@@ -26,13 +26,13 @@ const myErrorFormat = format.printf(({level, message, timestamp}) => {
 const logger = createLogger({
     transports:[
         new transports.File({
-            filename: './Logs/logger_info.log',
+            filename: './logs/logger_info.log',
             level: 'info',
             maxFiles: 1,
             format: format.combine(myInfoFormat)
         }),
         new transports.File({
-            filename: './Logs/logger_error.log',
+            filename: './logs/logger_error.log',
             level: 'error',
             maxFiles: 1,
             format: format.combine(format.timestamp(), myErrorFormat)
