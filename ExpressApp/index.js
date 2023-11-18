@@ -1,6 +1,8 @@
 /*
     This is the starting point of the application, all the api hits go through this method
 
+    --save is used to create an entry in package.json
+    
     Separate packages installed:
     - Nodemon (npm install --save-dev nodemon)
     # To restart server automatically when changes are made in app
@@ -15,12 +17,15 @@
     - Body Parser (npm install --save body-parser)
     # Used to parse body of incoming request (not easily parsed and formatted in nodejs)
     # Does not support files
+
+    - MongoDB Database connection using mongoose (npm install --save mongoose)
 */
 
 const express = require('express');
 const requestInfo = require('morgan');
 const logger = require('./src/controller/logger');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
 
 const productRoutes = require('./src/routes/products');
@@ -33,6 +38,14 @@ app.use(requestInfo(logPattern, {"stream": logger.stream}));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+
+// Instead of directly adding the password here, make sure to add it in the environment variable like process.env.MONGO_PASS something like that
+// process.env.MONGO_ATLAS_PW
+const adminPassword = encodeURIComponent(process.env.MONGO_ATLAS_PW);
+mongoose.connect(
+    'mongodb+srv://dkscipy:' +
+    adminPassword +
+    '@datacluster-m2p.rnnyt32.mongodb.net/?retryWrites=true&w=majority');
 
 // CORS- Cross origin resource sharing (Allows request from other servers to access the application and send request to our application)
 // The below function makes sure that request from diff server should be able to get a response from our application

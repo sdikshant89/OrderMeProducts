@@ -2,17 +2,66 @@
     This file acts as a resource for all requests on '/products' (which is configured in app.js)
 */
 const express = require('express');
+const Product = require('../models/product');
+const mongoose = require('mongoose');
+const logger = require('../controller/logger');
 const router = express.Router();
 
 router.get('/',(request, response)=>{
-    response.status(200).json({
-        message: 'get request for products',
+    // 4. TODO add pagination 
+    Product.find()
+    .exec()
+    .then(result => {
+        logger.log('info', 'Product fetch result from database: ' + result);
+        if(result && result.length >= 0){
+            response.status(200).json(result);
+        }else{
+            response.status(200).json({message: 'No entry provided in Database for Products'});
+        }
+    }).catch(err => {
+        response.status(500).json({error: err});
+        logger.log('error', 'Error while getting all Products [routes-> products.js-> router.get(/)]');
     });
 });
 
+router.get('/:productID',(request, response)=>{
+    const id = request.params.productID;
+    Product.findById(id)
+    .exec()
+    .then(result => {
+        logger.log('info', 'Product fetch by ID result from database: ' + result);
+        if(result){
+            response.status(200).json(result);
+        }
+        response.status(404).json({message: 'No entry provided in Database for the ID'});
+        }
+    ).catch(err => {
+        response.status(500).json({error: err});
+        logger.log('error', 'Error while getting Product by ID [routes-> products.js-> router.get(/:productID)]');
+    }
+    );
+});
+
 router.post('/',(request, response)=>{
-    response.status(201).json({
-        message: 'post request for products',
+    const product = new Product({
+        _id: new mongoose.Types.ObjectId(),
+        name: request.body.name,
+        price: request.body.price
+    });
+    product.save()
+    .then(result => {
+        logger.log('info', 'Product save result: ' + result);
+        response.status(201).json({
+            message: 'Products save result',
+            createdProduct: product
+        });
+    })
+    .catch(err => {
+        logger.log('error', 'Error while saving Product [routes-> products.js-> router.post(/)]');
+        response.status(500).json({
+            message: 'Products save error',
+            error: err
+        });
     });
 });
 
@@ -41,10 +90,23 @@ router.patch('/:productID',(request, response)=>{
     });
 });
 
-router.delete('/:productID',(request, response)=>{
-    response.status(200).json({
-        message: 'Deleting the product',
-        productID: id
+router.delete('/:productID',(request, response) =>{
+    const id = request.params.productID;
+    // Using ID thats why using delete one, there's also delete many (deleteMany())
+    Product.deleteOne({_id: id})
+    .exec()
+    .then(result => {
+        logger.log('info', 'Product with id: '+ id +' deleted result from database: '+ result);
+        response.status(200).json({
+            message: 'Deleting the product',
+            result: result
+        });
+    }).catch(err => {
+        logger.log('error', 'Error deleting Product with id: '+ id +' with error: '+ err);
+        response.status(500).json({
+            message: 'Error deleting the product',
+            error: err
+        });
     });
 });
 

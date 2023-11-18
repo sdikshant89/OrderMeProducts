@@ -12,7 +12,7 @@ router.post('/',(request, response)=>{
         quantity: request.body.quantity?request.body.quantity:NaN
     };
     response.status(200).json({
-        message: 'get request for products',
+        message: 'get request for Orders',
         orderSummary: order
     });
 });
