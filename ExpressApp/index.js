@@ -41,9 +41,9 @@ app.use(bodyParser.json());
 
 // Instead of directly adding the password here, make sure to add it in the environment variable like process.env.MONGO_PASS something like that
 // process.env.MONGO_ATLAS_PW
-const adminPassword = encodeURIComponent(process.env.MONGO_ATLAS_PW);
+const adminPassword = encodeURIComponent(process.env.MONGO_ATLAS_ADMIN_PASS_PW);
 mongoose.connect(
-    'mongodb+srv://dkscipy:' +
+    'mongodb+srv://'+ process.env.MONGO_ATLAS_ADMIN_USER +':' +
     adminPassword +
     '@datacluster-m2p.rnnyt32.mongodb.net/?retryWrites=true&w=majority');
 
