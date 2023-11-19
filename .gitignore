@@ -1,3 +1,6 @@
+# Environment Variables
+nodemon.json
+
 # Logs
 logs
 *.log
