@@ -1,20 +1,25 @@
 /*
     This file acts as a resource for all requests on '/products' (which is configured in app.js)
 */
-const express = require('express');
+const logger = require('../controller/logger');
 const Product = require('../models/product');
 const mongoose = require('mongoose');
-const logger = require('../controller/logger');
+const express = require('express');
 const router = express.Router();
 
 router.get('/',(request, response)=>{
     // 4. TODO add pagination 
+    // 5. TODO check if possible add result and status into diff vars and use response.status().json() only once at the end.
     Product.find()
     .exec()
     .then(result => {
         logger.log('info', 'Product fetch result from database: ' + result);
-        if(result && result.length >= 0){
-            response.status(200).json(result);
+        if(result && result.length > 0){
+            response.status(200).json(
+                {
+                    resultList: result,
+                    totalCount: result.length
+            });
         }else{
             response.status(200).json({message: 'No entry provided in Database for Products'});
         }
@@ -84,9 +89,24 @@ router.post('/:productID',(request, response)=>{
 });
 
 router.patch('/:productID',(request, response)=>{
-    response.status(200).json({
-        message: 'Patching (Updating the products)',
-        productID: id
+    const id = request.params.productID;
+    const updateOps = {};
+
+    for(const ops of request.body){
+        updateOps[ops.propName] = ops.value;
+    }
+    // { $set: {name: request.body.newName, price: request.body.newPrice} }
+    Product.updateOne({_id: id}, { $set: updateOps })
+    .exec()
+    .then(result => {
+        logger.log('info', 'Product update(patch) result: ' + result);
+        response.status(200).json(result);
+    })
+    .catch(err => {
+        logger.log('error', 'Error while updating the Product [routes-> products.js-> router.patch(/:productID]');
+        response.status(500).json({
+            error: err
+        });
     });
 });
 
@@ -97,7 +117,7 @@ router.delete('/:productID',(request, response) =>{
     .exec()
     .then(result => {
         logger.log('info', 'Product with id: '+ id +' deleted result from database: '+ result);
-        response.status(200).json({
+        response.status(204).json({
             message: 'Deleting the product',
             result: result
         });
