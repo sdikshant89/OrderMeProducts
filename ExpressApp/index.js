@@ -18,6 +18,9 @@
     # Used to parse body of incoming request (not easily parsed and formatted in nodejs)
     # Does not support files
 
+    - Mongoose (npm install --save mongoose)
+    # Used for database connection
+
     - MongoDB Database connection using mongoose (npm install --save mongoose)
 */
 
@@ -25,7 +28,7 @@ const express = require('express');
 const requestInfo = require('morgan');
 const logger = require('./src/controller/logger');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+const mongoose = require('./src/controller/mongoose');
 const app = express();
 
 const productRoutes = require('./src/routes/products');
@@ -39,13 +42,7 @@ app.use(requestInfo(logPattern, {"stream": logger.stream}));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-// Instead of directly adding the password here, make sure to add it in the environment variable like process.env.MONGO_PASS something like that
-// process.env.MONGO_ATLAS_PW
-const adminPassword = encodeURIComponent(process.env.MONGO_ATLAS_ADMIN_PASS_PW);
-mongoose.connect(
-    'mongodb+srv://'+ process.env.MONGO_ATLAS_ADMIN_USER +':' +
-    adminPassword +
-    '@datacluster-m2p.rnnyt32.mongodb.net/?retryWrites=true&w=majority');
+mongoose.connectMongoose();
 
 // CORS- Cross origin resource sharing (Allows request from other servers to access the application and send request to our application)
 // The below function makes sure that request from diff server should be able to get a response from our application
