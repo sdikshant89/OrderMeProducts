@@ -31,8 +31,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('./src/controller/mongoose');
 const app = express();
 
-const productRoutes = require('./src/routes/products');
-const orderRoutes = require('./src/routes/orders');
+const productRoutes = require('./src/routes/productRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
 
 // Defining logger pattern for API hit info
 const logPattern = '[:date[clf]] :remote-addr :remote-user :status :method \":url HTTP V:http-version\" :user-agent :response-time ms';
