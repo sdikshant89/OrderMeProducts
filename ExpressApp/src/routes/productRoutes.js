@@ -1,7 +1,7 @@
 /*
     This file acts as a resource for all requests on '/products' (which is configured in app.js)
 */
-const logger = require('../controller/logger');
+const logger = require('../configs/logger');
 const Product = require('../models/product');
 const mongoose = require('mongoose');
 const express = require('express');

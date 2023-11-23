@@ -26,9 +26,9 @@
 
 const express = require('express');
 const requestInfo = require('morgan');
-const logger = require('./src/controller/logger');
+const logger = require('./src/configs/logger');
 const bodyParser = require('body-parser');
-const mongoose = require('./src/controller/mongoose');
+const mongoose = require('./src/configs/mongoose');
 const app = express();
 
 const productRoutes = require('./src/routes/productRoutes');
