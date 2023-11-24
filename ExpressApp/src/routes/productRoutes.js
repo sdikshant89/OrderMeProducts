@@ -11,14 +11,25 @@ router.get('/',(request, response)=>{
     // 4. TODO add pagination 
     // 5. TODO check if possible add result and status into diff vars and use response.status().json() only once at the end.
     Product.find()
+    .select('_id name price')
     .exec()
     .then(result => {
         logger.log('info', 'Product fetch result from database: ' + result);
         if(result && result.length > 0){
             response.status(200).json(
                 {
-                    resultList: result,
-                    totalCount: result.length
+                    totalCount: result.length,
+                    resultList: result.map(result => {
+                        return {
+                            _id: result._id,
+                            name: result.name,
+                            price: result.price,
+                            request: {
+                                type: 'GET',
+                                url: 'http://localhost:3000/products/' + result._id
+                            }
+                        }
+                    })
             });
         }else{
             response.status(200).json({message: 'No entry provided in Database for Products'});
@@ -32,15 +43,23 @@ router.get('/',(request, response)=>{
 router.get('/:productID',(request, response)=>{
     const id = request.params.productID;
     Product.findById(id)
+    .select('_id name price')
     .exec()
     .then(result => {
         logger.log('info', 'Product fetch by ID result from database: ' + result);
         if(result){
-            response.status(200).json(result);
+            response.status(200).json({
+                product: result,
+                request: {
+                    type: 'GET',
+                    description: 'Get all product\'s list',
+                    url: 'http://localhost:3000/products/'
+                }
+            });
+        }else{
+            response.status(404).json({message: 'No entry provided in Database for the ID'});
         }
-        response.status(404).json({message: 'No entry provided in Database for the ID'});
-        }
-    ).catch(err => {
+    }).catch(err => {
         response.status(500).json({error: err});
         logger.log('error', 'Error while getting Product by ID [routes-> products.js-> router.get(/:productID)]');
     }
@@ -58,11 +77,17 @@ router.post('/',(request, response)=>{
         logger.log('info', 'Product save result: ' + result);
         response.status(201).json({
             message: 'Products save result',
-            createdProduct: product
+            createdProduct: {
+                ...result._doc,
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/products/' + result._id
+                }
+            }
         });
-    })
-    .catch(err => {
+    }).catch(err => {
         logger.log('error', 'Error while saving Product [routes-> products.js-> router.post(/)]');
+        logger.log('error', err);
         response.status(500).json({
             message: 'Products save error',
             error: err
@@ -113,12 +138,13 @@ router.patch('/:productID',(request, response)=>{
 router.delete('/:productID',(request, response) =>{
     const id = request.params.productID;
     // Using ID thats why using delete one, there's also delete many (deleteMany())
+    // 6. TODO Check and implement deletemany with comma separated values of ids
     Product.deleteOne({_id: id})
     .exec()
     .then(result => {
         logger.log('info', 'Product with id: '+ id +' deleted result from database: '+ result);
-        response.status(204).json({
-            message: 'Deleting the product',
+        response.status(200).json({
+            message: 'Deleted the product',
             result: result
         });
     }).catch(err => {
