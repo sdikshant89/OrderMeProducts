@@ -7,6 +7,39 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
+router.get('/', (request, response) => {
+    Order.find()
+    .select('_id product quantity')
+    .exec()
+    .then(result => {
+        logger.log('info', 'Orders fetch result from database: ' + result);
+        if(result && result.length > 0){
+            response.status(200).json(
+                {
+                    totalCount: result.length,
+                    resultList: result.map(result => {
+                        return {
+                            _id: result._id,
+                            product: result.product,
+                            quantity: result.quantity,
+                            request: {
+                                type: 'GET',
+                                // TODO change once implemented
+                                url: 'http://localhost:3000/orders/' + result._id
+                            }
+                        }
+                    })
+                }
+            );
+        }else{
+            response.status(200).json({message: 'No entry provided in Database for Products'});
+        }
+    }).catch(err => {
+        response.status(500).json({error: err});
+        logger.log('error', 'Error while getting all Orders [routes-> orderRoutes.js-> router.get(/)]');
+    });
+});
+
 router.post('/',(request, response)=>{
     // 2. TODO add error handeling here so that the error parameter in app.use is modified and
     // then we could terminate the API here and send the response from here itself. (Call that app.use from here)
@@ -36,26 +69,6 @@ router.post('/',(request, response)=>{
             message: 'Orders save error',
             error: err
         });
-    });
-});
-
-router.post('/:orderID',(request, response)=>{
-    const id = request.params.orderID;
-    // Keep all of this into another method so that it would be easy to understand
-    // Using var and not let to get support for older web browsers as well
-    var statusCode = 404;
-    var respMessage = '';
-    if(!isNaN(parseFloat(id)) && isFinite(id)){
-        statusCode = 201;
-        respMessage = 'Passed (OrderID is a number)';
-    }else{
-        statusCode = 500;
-        respMessage = 'Passed (OrderID is not a number)';
-    }
-    
-    response.status(statusCode).json({
-        message: JSON.stringify(respMessage),
-        orderID: id
     });
 });
 
