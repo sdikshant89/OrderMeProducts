@@ -3,11 +3,13 @@
 */
 const logger = require('../configs/logger');
 const Order = require('../models/order');
+const Product = require('../models/product');
 const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
 router.get('/', (request, response) => {
+    logger.log('info', 'Inside orderRoutes, [router.get(/)]');
     Order.find()
     .select('_id product quantity')
     .exec()
@@ -41,14 +43,21 @@ router.get('/', (request, response) => {
 });
 
 router.post('/',(request, response)=>{
-    // 2. TODO add error handeling here so that the error parameter in app.use is modified and
-    // then we could terminate the API here and send the response from here itself. (Call that app.use from here)
-    const order = new Order({
-        _id: new mongoose.Types.ObjectId(),
-        quantity: request.body.quantity,
-        product: request.body.product
-    });
-    order.save()
+    logger.log('info', 'Inside orderRoutes, [router.post(/)]');
+    Product.findById(request.body.product)
+    .then(product => {
+        if(!product){
+            return response.status(404).json({
+                message: 'Product not found!'
+            });
+        }
+        const order = new Order({
+            _id: new mongoose.Types.ObjectId(),
+            quantity: request.body.quantity,
+            product: request.body.product
+        });
+        return order.save();
+    })
     .then(result => {
         logger.log('info', 'Order save result from database: ' + result);
         response.status(201).json({
@@ -63,12 +72,33 @@ router.post('/',(request, response)=>{
         });
     })
     .catch(err => {
-        logger.log('error', 'Error while saving Orders [routes-> orderRoutes.js-> router.post(/)]');
+        logger.log('error', 'Error while saving Order [routes-> orderRoutes.js-> router.post(/)]');
         logger.log('error', err);
         response.status(500).json({
             message: 'Orders save error',
             error: err
         });
+    });
+});
+
+router.get('/:orderId', (request, response) => {
+    logger.log('info', 'Inside orderRoutes, [router.get(/:orderId]');
+    Order.findById(request.params.orderId)
+    .exec()
+    .then(result => {
+        logger.log('info', 'Success response from [router.get(/:orderId] Response: ' + result);
+        response.status(200).json({
+            order: result,
+            request: {
+                type: 'GET',
+                url: 'http://localhost:3000/orders',
+                message: 'Use the given url to access all orders'
+            }
+        });
+    })
+    .catch(err => {
+        response.status(500).json({error: err});
+        logger.log('error', 'Error while getting Order by ID [routes-> orderRoutes.js-> router.get(/:orderID)]');
     });
 });
 
@@ -80,9 +110,20 @@ router.patch('/:orderID',(request, response)=>{
 });
 
 router.delete('/:orderID',(request, response)=>{
-    response.status(200).json({
-        message: 'Deleting the Order',
-        orderID: id
+    Order.deleteOne({_id: request.params.orderID})
+    .exec()
+    .then(result => {
+        logger.log('info', 'Order with id: '+ request.params.orderID +' deleted, result from database: '+ result);
+        response.status(200).json({
+            message: 'Deleted the product',
+            result: result
+        });
+    }).catch(err => {
+        logger.log('error', 'Error deleting Order with id: '+ request.params.orderID +' with error: '+ err);
+        response.status(500).json({
+            message: 'Error deleting the order',
+            error: err
+        });
     });
 });
 

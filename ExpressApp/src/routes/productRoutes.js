@@ -61,7 +61,7 @@ router.get('/:productID',(request, response)=>{
         }
     }).catch(err => {
         response.status(500).json({error: err});
-        logger.log('error', 'Error while getting Product by ID [routes-> products.js-> router.get(/:productID)]');
+        logger.log('error', 'Error while getting Product by ID [routes-> productRoutes.js-> router.get(/:productID)]');
     }
     );
 });
